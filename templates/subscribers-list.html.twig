@@ -1,0 +1,56 @@
+{% extends "base.html.twig" %}
+{% macro sortLink(field, label, currentSorting) %}
+    {% if currentSorting and currentSorting.field()==field %}
+        {% if currentSorting.dir()=='asc' %}
+            <i class="bi bi-sort-down"></i>
+        {% else %}
+            <i class="bi bi-sort-up"></i>
+        {% endif %}
+    {% endif %}
+    <a href="?f={{ field }}&d={{ currentSorting is null? "asc" : (currentSorting.dir()=='asc' and currentSorting.field()==field ?'desc':'asc')}}">
+        {{ label }}
+    </a>
+{% endmacro %}
+
+{% block body %}
+    <h1>Subscribers</h1>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th scope="col">{{ _self.sortLink("name","Name",sorting) }}</th>
+                <th scope="col">{{ _self.sortLink("email","Email",sorting) }}</th>
+                <th scope="col">{{ _self.sortLink("registeredAt","Registered At",sorting) }}</th>
+                <th scope="col">Categories</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for subscriber in subscribers %}
+            <tr>
+                <th scope="row">{{ subscriber.name }}</th>
+                <td>{{ subscriber.email }}</td>
+                <td>
+                    {{ subscriber.registeredAt|date("m/d/Y") }}
+                    <br>
+                    <small>{{ subscriber.registeredAt|date("H:i") }}</small>
+                </td>
+                <td>
+                    {% for category in subscriber.subscription.categories %}
+                        <span class="badge badge-pill badge-primary">{{ category.title }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="edit/{{ subscriber.id }}">Edit</a>
+                    <a href="remove/{{ subscriber.id }}" class="danger" onclick="confirm('Are you sure?')">Remove</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No subscriptions</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('logout') }}">Logout</a>
+{% endblock %}
